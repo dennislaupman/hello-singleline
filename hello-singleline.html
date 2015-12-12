@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello... Realtime collaboration editor</title>
+
+
+	<style type="text/css">
+
+	body {
+		margin: 0;
+		padding: 0; 
+	}
+
+	#checkselectionwidth,
+	#checkselectionoffset,
+	[hello] {
+
+		
+		width: 600px;
+		line-height: 24px;
+		padding: 10px;
+		box-sizing: border-box;
+		font-family: verdana;
+		font-size: 14px;
+		margin:0;
+		height: 44px;
+		overflow: hidden;
+	}
+
+	#checkselectionoffset,
+	#checkselectionwidth {
+
+		background: #ff00ff;
+		padding: 0;
+		margin: 0; 
+		visibility: hidden;
+	}
+
+	[hello] div:first-child {
+
+		z-index: 2;
+		position: relative;
+	}
+
+	.selection {
+
+		height:24px;
+		width: 0;
+		background: #86be40;
+		opacity: 0.35;
+		position: relative;
+		top: -24px;
+		z-index: 0;
+	}
+
+	.selection.blue {
+
+		background: #54bed3;
+	}
+
+	.selection.pink {
+
+		background: #f062a4;
+	}
+
+	.selection.yellow {
+
+		background: #ffd33a;
+	}
+
+	#move {
+
+	
+		
+		padding: 0;
+		margin: 0; 
+	}
+
+	.hide {
+
+		display: none;
+	}
+
+	</style>
+</head>
+<body>
+
+	<div hello>
+		<div id="bla">Lorem Ipsum is slechts een proeftekst uit het drukkerij- en zetterijwezen. </div>
+		<div class="selection"></div>
+	</div>
+
+
+		<span id="checkselectionwidth"></span>
+		<span id="checkselectionoffset"></span>
+ 
+	<br />
+	<!-- dont remove br -->
+
+	Pick a color: 
+	<select id="color">
+		<option value="green">Green</option>
+		<option value="blue">Blue</option>
+		<option value="pink">Pink</option>
+		<option value="yellow">yellow</option>
+	</select>
+
+
+	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src='/socket.io/socket.io.js'></script>
+
+
+	<script type="text/javascript">
+
+		var previousColor = 'green'
+
+	   var socket = io();
+
+            socket.on('welcome', function(data) {
+              
+              //  addMessage(data.message);
+
+                // Respond with a message including this clients' id sent from the server
+                socket.emit('i am client', {data: 'foo!', id: data.id});
+            });
+           
+            socket.on('getSelectionRange',  function(data) {
+              
+				$( "[hello]" )
+					.find('.selection')
+					.removeClass(previousColor)
+					.addClass( data.color )
+					.css( { 
+						'left': data.left, 
+						'width': data.width, 
+					} );
+
+				previousColor = data.color;
+
+              console.log(data.color);
+            });
+ 
+
+          
+
+	//$( "#setSelection" ).bind( "click", function() {
+	$( "[hello]" ).bind( "click", function( event ) {
+
+
+		 $( '.hide' ).removeClass ( 'hide' );
+
+		var selObj = window.getSelection(); 	
+
+		$('#checkselectionwidth').html(selObj.toString());
+		$('#checkselectionoffset').html($('#bla').html().toString().substring(0, selObj.getRangeAt(0).startOffset));
+
+		// $('.selection').css( { 
+		// 	'left': $('#checkselectionoffset').innerWidth(), 
+		// 	'width': $('#checkselectionwidth').innerWidth()
+		// } );
+
+		// $( event.target ).parent().find('.selection').addClass ( 'hide' );
+
+		
+		 socket.emit('setSelectionRange', {
+
+		 	'color': $('#color').val() ||  'green',
+		 	'left': $('#checkselectionoffset').innerWidth(), 
+			'width': $('#checkselectionwidth').innerWidth()
+		 });
+	});
+
+	</script>
+
+</body>
+</html>
