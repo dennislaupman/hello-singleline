@@ -105,26 +105,48 @@
 		<option value="yellow">yellow</option>
 	</select>
 
+<p>
+	
+	<button id="showArray">showArray</button>
+</p>
+	
 
 	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 	<script src='/socket.io/socket.io.js'></script>
+
+
+
 
 
 	<script type="text/javascript">
 
 		var previousColor = 'green'
 
-	   var socket = io();
 
-            socket.on('welcome', function(data) {
+		var connectedClients = [];
+		var sockedId =null
+
+	   	var socket = io();
+            socket.on('connectedClients', function(data) {
               
-              //  addMessage(data.message);
+				connectedClients = data.connectedClients;
 
-                // Respond with a message including this clients' id sent from the server
-                socket.emit('i am client', {data: 'foo!', id: data.id});
+				console.log('connectedClients', data.connectedClients);
             });
+
+
+             socket.on('getSocketId', function(data) {
+              
+				sockedId = data.socketId;
+
+				console.log('getSocketId', sockedId);
+            });
+
+
            
             socket.on('getSelectionRange',  function(data) {
+
+            	console.log("aa")
               
 				$( "[hello]" )
 					.find('.selection')
@@ -141,9 +163,15 @@
             });
  
 
+
+	$( "#showArray" ).bind( "click", function( event ) {
+		
+		console.log('connecte clients', connectedClients);
+		console.log('SocketId', sockedId);
+	});
+
           
 
-	//$( "#setSelection" ).bind( "click", function() {
 	$( "[hello]" ).bind( "click", function( event ) {
 
 

@@ -12,31 +12,50 @@ var app = http.createServer(function(req, res) {
 });
 
 
-
 // Socket.io server listens to our app
 var io = require('socket.io').listen(app);
 
-// Send current time to all connected clients
-function sendTime() {
-    io.emit('time', { time: new Date().toJSON() });
-}
+var connectedClients = [];
 
-// Send current time every 10 secs
-setInterval(sendTime, 10000);
 
 // Emit welcome message on connection
 io.on('connection', function(socket) {
-    // Use socket to communicate with this particular client only, sending it it's own id
-    socket.emit('welcome', { message: 'Welcome!', id: socket.id });
+    
+    //Add to clinets pool
+    connectedClients.push( socket.id );
 
-    socket.on('i am client', console.log);
+    io.emit('connectedClients', { connectedClients: connectedClients  });
+
+    socket.emit('getSocketId', { socketId: socket.id  }  )
 
     socket.on('setSelectionRange', function( data ) {
 
- console.log(data);
-    	 socket.broadcast.emit('getSelectionRange', data);
+        console.log(data)
+    	socket.broadcast.emit('getSelectionRange', data);
     });
+
+    socket.on('disconnect', function ( ) {
+
+        socket.broadcast.emit('removeClient', socket.id);
+
+        console.log('user disconnected',   socket.id);
+
+        for (var i = connectedClients.length - 1; i >= 0; i--) {
+            
+            if( connectedClients[i] === socket.id) {
+
+                connectedClients.splice(i, 1);
+
+
+
+                io.emit('connectedClients', { connectedClients: connectedClients  });
+                break;
+            }
+        };
+  });
 });
+
+
 
 
 app.listen(3000);
