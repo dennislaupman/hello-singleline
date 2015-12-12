@@ -14,8 +14,3 @@ node hello-server.js
 ```
 htp://localhost:3000
 ```
-
-## Contributors
-
-Dennis Laupman
-
