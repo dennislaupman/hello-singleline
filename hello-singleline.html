@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="helloSingleLine">
 <head>
 	<title>Hello... Realtime collaboration editor</title>
 
@@ -83,9 +83,9 @@
 
 	</style>
 </head>
-<body>
+<body  ng-controller="helloSingleLineCtrl as Ctrl">
 
-	<div hello>
+	<div hello ng-click="Ctrl.selectRange()">
 		<div id="bla">Lorem Ipsum is slechts een proeftekst uit het drukkerij- en zetterijwezen. </div>
 		<div class="selection"></div>
 	</div>
@@ -111,92 +111,75 @@
 </p>
 	
 
-	<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 	<script src='/socket.io/socket.io.js'></script>
-
-
-
-
 
 	<script type="text/javascript">
 
-		var previousColor = 'green'
+		var app = angular.module('helloSingleLine', [])
+  			app.controller('helloSingleLineCtrl', function() {
+   
+				var previousColor = 'green'
+
+				var connectedClients = [];
+				var sockedId =null
+
+			   	var socket = io();
+		            socket.on('connectedClients', function(data) {
+		              
+						connectedClients = data.connectedClients;
+
+						console.log('connectedClients', data.connectedClients);
+		            });
 
 
-		var connectedClients = [];
-		var sockedId =null
+		             socket.on('getSocketId', function(data) {
+		              
+						sockedId = data.socketId;
 
-	   	var socket = io();
-            socket.on('connectedClients', function(data) {
-              
-				connectedClients = data.connectedClients;
-
-				console.log('connectedClients', data.connectedClients);
-            });
+						console.log('getSocketId', sockedId);
+		            });
 
 
-             socket.on('getSocketId', function(data) {
-              
-				sockedId = data.socketId;
+		           
+		            socket.on('getSelectionRange',  function(data) {
 
-				console.log('getSocketId', sockedId);
-            });
+		            	var rce =  document.querySelector( '.selection' );
 
+						angular.element( rce )
+							.removeClass(previousColor)
+							.addClass( data.color )
+							.css( 'left', data.left + 'px')
+							.css( 'width', data.width +'px');
 
-           
-            socket.on('getSelectionRange',  function(data) {
+						previousColor = data.color;
+		            });
 
-            	console.log("aa")
-              
-				$( "[hello]" )
-					.find('.selection')
-					.removeClass(previousColor)
-					.addClass( data.color )
-					.css( { 
-						'left': data.left, 
-						'width': data.width, 
-					} );
+		          
+			this.selectRange = function( event ) {
 
-				previousColor = data.color;
+				var selObj = window.getSelection(); 	
+				var checkselectionwidth = document.querySelector( '#checkselectionwidth' );
+				var checkselectionoffset = document.querySelector( '#checkselectionoffset' );
+				var bla = document.querySelector( '#bla' );
+				var color = document.querySelector( '#color' );
 
-              console.log(data.color);
-            });
- 
+				angular.element( checkselectionwidth ).html(selObj.toString());
+				angular.element( checkselectionoffset ).html(angular.element( bla ).html().toString().substring(0, selObj.getRangeAt(0).startOffset));
 
+			
+				console.log( document.querySelector( '#checkselectionwidth' ).offsetWidth )
 
-	$( "#showArray" ).bind( "click", function( event ) {
-		
-		console.log('connecte clients', connectedClients);
-		console.log('SocketId', sockedId);
+				 socket.emit('setSelectionRange', {
+
+				 	'color': angular.element( color ).val() ||  'green',
+				 	'left': checkselectionoffset.offsetWidth, 
+					'width': checkselectionwidth.offsetWidth
+				 });
+			};
+
 	});
 
-          
-
-	$( "[hello]" ).bind( "click", function( event ) {
-
-
-		 $( '.hide' ).removeClass ( 'hide' );
-
-		var selObj = window.getSelection(); 	
-
-		$('#checkselectionwidth').html(selObj.toString());
-		$('#checkselectionoffset').html($('#bla').html().toString().substring(0, selObj.getRangeAt(0).startOffset));
-
-		// $('.selection').css( { 
-		// 	'left': $('#checkselectionoffset').innerWidth(), 
-		// 	'width': $('#checkselectionwidth').innerWidth()
-		// } );
-
-		// $( event.target ).parent().find('.selection').addClass ( 'hide' );
-
-		
-		 socket.emit('setSelectionRange', {
-
-		 	'color': $('#color').val() ||  'green',
-		 	'left': $('#checkselectionoffset').innerWidth(), 
-			'width': $('#checkselectionwidth').innerWidth()
-		 });
-	});
 
 	</script>
 
