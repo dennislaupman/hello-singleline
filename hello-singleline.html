@@ -49,7 +49,6 @@
 		background: #86be40;
 		opacity: 0.35;
 		position: relative;
-		top: -24px;
 		z-index: 0;
 	}
 
@@ -83,11 +82,11 @@
 
 	</style>
 </head>
-<body  ng-controller="helloSingleLineCtrl as Ctrl">
+<body  ng-controller="helloSingleLineCtrl">
 
-	<div hello ng-click="Ctrl.selectRange()">
+	<div hello ng-click="selectRange()">
 		<div id="bla">Lorem Ipsum is slechts een proeftekst uit het drukkerij- en zetterijwezen. </div>
-		<div class="selection"></div>
+		<div ng-repeat="selection in connectedClients" class="selection {{selection.color}}" style="left:{{selection.left}}px; width:{{selection.width}}px; top:-{{($index+1)*24}}px;"></div>
 	</div>
 
 
@@ -105,58 +104,53 @@
 		<option value="yellow">yellow</option>
 	</select>
 
-<p>
-	
-	<button id="showArray">showArray</button>
-</p>
-	
-
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 	<script src='/socket.io/socket.io.js'></script>
 
 	<script type="text/javascript">
 
 		var app = angular.module('helloSingleLine', [])
-  			app.controller('helloSingleLineCtrl', function() {
+  			app.controller('helloSingleLineCtrl', function( $scope ) {
    
-				var previousColor = 'green'
+				$scope.connectedClients = [];
 
-				var connectedClients = [];
-				var sockedId =null
+				var socketId =null
 
 			   	var socket = io();
 		            socket.on('connectedClients', function(data) {
-		              
-						connectedClients = data.connectedClients;
 
-						console.log('connectedClients', data.connectedClients);
+						$scope.connectedClients = data.connectedClients;
+
+    					$scope.$apply();
+
+						console.log('connectedClients', $scope.connectedClients);
 		            });
 
 
 		             socket.on('getSocketId', function(data) {
 		              
-						sockedId = data.socketId;
+						socketId = data.socketId;
 
-						console.log('getSocketId', sockedId);
+						console.log('getSocketId', socketId);
 		            });
 
 
-		           
 		            socket.on('getSelectionRange',  function(data) {
 
-		            	var rce =  document.querySelector( '.selection' );
+		            	 for (var i = $scope.connectedClients.length - 1; i >= 0; i--) {
 
-						angular.element( rce )
-							.removeClass(previousColor)
-							.addClass( data.color )
-							.css( 'left', data.left + 'px')
-							.css( 'width', data.width +'px');
+		            	 	  if( $scope.connectedClients[i].socketId == data.socketId) {
+									
+									$scope.connectedClients[i] = data;
 
-						previousColor = data.color;
+									$scope.$apply();
+		            	 	  	break;
+		            	 	  }
+		            	 }
 		            });
 
 		          
-			this.selectRange = function( event ) {
+			$scope.selectRange = function( event ) {
 
 				var selObj = window.getSelection(); 	
 				var checkselectionwidth = document.querySelector( '#checkselectionwidth' );
@@ -167,14 +161,13 @@
 				angular.element( checkselectionwidth ).html(selObj.toString());
 				angular.element( checkselectionoffset ).html(angular.element( bla ).html().toString().substring(0, selObj.getRangeAt(0).startOffset));
 
-			
-				console.log( document.querySelector( '#checkselectionwidth' ).offsetWidth )
-
-				 socket.emit('setSelectionRange', {
+	
+				socket.emit('setSelectionRange', {
 
 				 	'color': angular.element( color ).val() ||  'green',
 				 	'left': checkselectionoffset.offsetWidth, 
-					'width': checkselectionwidth.offsetWidth
+					'width': checkselectionwidth.offsetWidth,
+					'socketId' : socketId
 				 });
 			};
 

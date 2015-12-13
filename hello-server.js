@@ -22,7 +22,7 @@ var connectedClients = [];
 io.on('connection', function(socket) {
     
     //Add to clinets pool
-    connectedClients.push( socket.id );
+    connectedClients.push( { socketId: socket.id } );
 
     io.emit('connectedClients', { connectedClients: connectedClients  });
 
@@ -42,7 +42,7 @@ io.on('connection', function(socket) {
 
         for (var i = connectedClients.length - 1; i >= 0; i--) {
             
-            if( connectedClients[i] === socket.id) {
+            if( connectedClients[i].socketId === socket.id) {
 
                 connectedClients.splice(i, 1);
 
