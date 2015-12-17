@@ -94,16 +94,32 @@
 	.cursor .cursor-caret {
 
 		border-left: 2px solid;
-		border-color: rgb(31, 161, 93);
+		border-color: #86be40;
 	    height: 13.6px;
 	    position: absolute;
 	    width: 0px;
 	    font-size: 0;
 	}
 
+	.cursor.blue  .cursor-caret {
+
+		border-color: #54bed3;
+	}
+
+	.cursor.pink  .cursor-caret {
+
+		border-color: #f062a4;
+	}
+
+	.cursor.yellow  .cursor-caret {
+
+		border-color: #ffd33a;
+	}
+
+
 	.cursor .cursor-top {
 	    opacity: 1;
-	    background-color: rgb(31, 161, 93);
+	    background-color: #86be40;
 	    position: absolute;
 	    width: 6px;
 	    left: -2px;
@@ -112,11 +128,28 @@
 	    font-size: 0;
 	}
 
+
+	.cursor.blue  .cursor-top {
+
+		background-color: #54bed3;
+	}
+
+	.cursor.pink  .cursor-top {
+
+		background-color: #f062a4;
+	}
+
+	.cursor.yellow  .cursor-top {
+
+		background-color: #ffd33a;
+	}
+
+
 	.cursor .cursor-name {
 	
 		opacity:1;
 	    display: block;
-	    background-color: rgb(31, 161, 93);
+	    background-color: #86be40;
 
 	    position: absolute;
 	    font-size: 10px;
@@ -127,15 +160,33 @@
 	    white-space: nowrap;
 	}
 
+	.cursor.blue  .cursor-name {
+
+		background: #54bed3;
+	}
+
+	.cursor.pink  .cursor-name {
+
+		background: #f062a4;
+	}
+
+	.cursor.yellow  .cursor-name {
+
+		background: #ffd33a;
+	}
+
+
+
+
 	</style>
 </head>
 <body  ng-controller="helloSingleLineCtrl">
 
 
-	<div class="cursor">
+	<div ng-repeat="caret in connectedClients" class="cursor {{caret.color}}">
 		<div class="cursor-caret"></div>
 		<div class="cursor-top"></div>
-		<div class="cursor-name">Dennis Laupman</div>
+		<div class="cursor-name">{{caret.name || 'Untitled'}}</div>
 	</div>
 
 	<div hello ng-click="selectRange()">
@@ -144,8 +195,8 @@
 	</div>
 
 
-		<span id="checkselectionwidth"></span>
-		<span id="checkselectionoffset"></span>
+	<span id="checkselectionwidth"></span>
+	<span id="checkselectionoffset"></span>
  
 	<br />
 	<!-- dont remove br -->
@@ -160,7 +211,7 @@
 		</select>	
 
 		<label>(Nick) name: </label>
-		<input type="text" />
+		<input ng-model="name" type="text" />
 	</p>
 	
 
@@ -227,7 +278,8 @@
 				 	'color': angular.element( color ).val() ||  'green',
 				 	'left': checkselectionoffset.offsetWidth, 
 					'width': checkselectionwidth.offsetWidth,
-					'socketId' : socketId
+					'socketId' : socketId,
+					'name' : $scope.name
 				 });
 			};
 
