@@ -82,7 +82,7 @@
 	}
 
 	.cursor {
-		opacity: 1;
+		opacity: 0;
 	    left: 309px;
 	    top: 43px;
 	    cursor: text;
@@ -99,6 +99,14 @@
 	    position: absolute;
 	    width: 0px;
 	    font-size: 0;
+	}
+
+	.cursor.green,
+	.cursor.blue,
+	.cursor.pink,
+	.cursor.yellow {
+
+		opacity: 1;
 	}
 
 	.cursor.blue  .cursor-caret {
@@ -147,8 +155,8 @@
 
 	.cursor .cursor-name {
 	
-		opacity:1;
-	    display: block;
+		opacity: 0;
+	    display: none;
 	    background-color: #86be40;
 
 	    position: absolute;
@@ -183,7 +191,7 @@
 <body  ng-controller="helloSingleLineCtrl">
 
 
-	<div ng-repeat="caret in connectedClients" class="cursor {{caret.color}}">
+	<div ng-repeat="caret in connectedClients" class="cursor {{caret.color}}"  style="left:{{caret.caretPosition}}px;">
 		<div class="cursor-caret"></div>
 		<div class="cursor-top"></div>
 		<div class="cursor-name">{{caret.name || 'Untitled'}}</div>
@@ -252,6 +260,10 @@
 
 		            	 	  if( $scope.connectedClients[i].socketId == data.socketId) {
 									
+		            	 	  		data.caretPosition = parseInt(data.left, 10) + parseInt(data.width, 10) + 9;
+
+
+
 									$scope.connectedClients[i] = data;
 
 									$scope.$apply();
