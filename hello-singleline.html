@@ -25,6 +25,7 @@
 		margin:0;
 		height: 44px;
 		overflow: hidden;
+		margin-top: 30px;
 	}
 
 	#checkselectionoffset,
@@ -80,9 +81,62 @@
 		display: none;
 	}
 
+	.cursor {
+		opacity: 1;
+	    left: 309px;
+	    top: 43px;
+	    cursor: text;
+	    position: absolute;
+	    z-index: 24;
+	    font: normal 13px arial,sans-serif;
+	}
+
+	.cursor .cursor-caret {
+
+		border-left: 2px solid;
+		border-color: rgb(31, 161, 93);
+	    height: 13.6px;
+	    position: absolute;
+	    width: 0px;
+	    font-size: 0;
+	}
+
+	.cursor .cursor-top {
+	    opacity: 1;
+	    background-color: rgb(31, 161, 93);
+	    position: absolute;
+	    width: 6px;
+	    left: -2px;
+	    top: -2px;
+	    height: 6px;
+	    font-size: 0;
+	}
+
+	.cursor .cursor-name {
+	
+		opacity:1;
+	    display: block;
+	    background-color: rgb(31, 161, 93);
+
+	    position: absolute;
+	    font-size: 10px;
+	    color: #fff;
+	    top: -14px;
+	    left: -2px;
+	    padding: 2px;
+	    white-space: nowrap;
+	}
+
 	</style>
 </head>
 <body  ng-controller="helloSingleLineCtrl">
+
+
+	<div class="cursor">
+		<div class="cursor-caret"></div>
+		<div class="cursor-top"></div>
+		<div class="cursor-name">Dennis Laupman</div>
+	</div>
 
 	<div hello ng-click="selectRange()">
 		<div id="bla">Lorem Ipsum is slechts een proeftekst uit het drukkerij- en zetterijwezen. </div>
@@ -96,13 +150,19 @@
 	<br />
 	<!-- dont remove br -->
 
-	Pick a color: 
-	<select id="color">
-		<option value="green">Green</option>
-		<option value="blue">Blue</option>
-		<option value="pink">Pink</option>
-		<option value="yellow">yellow</option>
-	</select>
+	<p>
+		<label>Pick a color: </label>
+		<select id="color">
+			<option value="green">Green</option>
+			<option value="blue">Blue</option>
+			<option value="pink">Pink</option>
+			<option value="yellow">yellow</option>
+		</select>	
+
+		<label>(Nick) name: </label>
+		<input type="text" />
+	</p>
+	
 
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 	<script src='/socket.io/socket.io.js'></script>
