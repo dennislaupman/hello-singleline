@@ -156,9 +156,8 @@
 	.cursor .cursor-name {
 	
 		opacity: 0;
-	    display: none;
+	  
 	    background-color: #86be40;
-
 	    position: absolute;
 	    font-size: 10px;
 	    color: #fff;
@@ -166,6 +165,12 @@
 	    left: -2px;
 	    padding: 2px;
 	    white-space: nowrap;
+	    transition: 0.3s opacity linear;
+	}
+
+	.cursor .cursor-name.show {
+
+		opacity: 1;
 	}
 
 	.cursor.blue  .cursor-name {
@@ -194,7 +199,7 @@
 	<div ng-repeat="caret in connectedClients" class="cursor {{caret.color}}"  style="left:{{caret.caretPosition}}px;">
 		<div class="cursor-caret"></div>
 		<div class="cursor-top"></div>
-		<div class="cursor-name">{{caret.name || 'Untitled'}}</div>
+		<div ng-class="[{ 'show' : caret.show==true }]" class="cursor-name">{{caret.name || 'Untitled'}}</div>
 	</div>
 
 	<div hello ng-click="selectRange()">
@@ -229,11 +234,13 @@
 	<script type="text/javascript">
 
 		var app = angular.module('helloSingleLine', [])
-  			app.controller('helloSingleLineCtrl', function( $scope ) {
+  			app.controller('helloSingleLineCtrl', function( $scope, $timeout ) {
    
 				$scope.connectedClients = [];
 
 				var socketId =null
+				var timers = [];
+
 
 			   	var socket = io();
 		            socket.on('connectedClients', function(data) {
@@ -261,7 +268,17 @@
 		            	 	  if( $scope.connectedClients[i].socketId == data.socketId) {
 									
 		            	 	  		data.caretPosition = parseInt(data.left, 10) + parseInt(data.width, 10) + 9;
+									data.show = true;
 
+		            	 	  		if(timers[i]) {
+
+		            	 	  			$timeout.cancel(timers[i]);
+		            	 	  		}
+
+									timers[i] = $timeout( function() {
+
+										data.show = false;
+									}, 4000);
 
 
 									$scope.connectedClients[i] = data;
